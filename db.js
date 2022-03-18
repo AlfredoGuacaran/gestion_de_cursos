@@ -5,7 +5,7 @@ const config = {
   user: 'postgres',
   host: 'localhost',
   password: '1234',
-  database: 'mercadoweb',
+  database: 'cursos',
   port: 5432,
   max: 20,
   idleTimeoutMillis: 5000,
@@ -13,3 +13,30 @@ const config = {
 };
 
 const pool = new Pool(config);
+
+async function getCursos() {
+  try {
+    const client = await pool.connect();
+    const res = await client.query('SELECT * from cursos');
+    client.release();
+    return res.rows;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function nuevoCurso(nombre, nivel, fecha, duracion) {
+  try {
+    const client = await pool.connect();
+    const res = await client.query({
+      text: 'INSERT INTO cursos (nombre, nivel, fecha, duracion) values ($1,$2,$3,$4)',
+      values: [nombre, nivel, fecha, duracion],
+    });
+    client.release();
+    return res.rows;
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = { getCursos, nuevoCurso };
