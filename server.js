@@ -1,7 +1,7 @@
 const express = require('express');
 const nunjucks = require('nunjucks');
 const app = express();
-const { getCursos, nuevoCurso } = require('./db');
+const { getCursos, nuevoCurso, borrarCurso, editarCurso } = require('./db');
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -16,22 +16,54 @@ app.get('/', (req, res) => {
   res.render('index.html');
 });
 
-app.get('/curso', async (req, res) => {
+app.post('/curso', async (req, res) => {
   try {
     const { nombre, nivelTecnico, fechaInicio, duracion } = req.body;
-    console.log(nombre, nivelTecnico, fechaInicio, duracion);
-    console.log('aqui');
+    if (!(nombre && nivelTecnico && fechaInicio && duracion)) return;
+
+    const post = await nuevoCurso(nombre, nivelTecnico, fechaInicio, duracion);
+    console.log(post);
   } catch (error) {
-    res.send(error);
+    console.log(res);
   }
 });
 
 app.get('/cursos', async (req, res) => {
   try {
     const cursos = await getCursos();
-    res.send({ cursos });
+    res.send(cursos);
   } catch (error) {
-    res.send(error);
+    console.log(error);
+  }
+});
+
+app.delete('/curso/:numeroCurso', async (req, res) => {
+  try {
+    const { numeroCurso } = req.params;
+
+    const borrar = await borrarCurso(+numeroCurso);
+    res.end(borrar);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.put('/curso', async (req, res) => {
+  try {
+    const { id, nombre, nivelTecnico, fechaInicio, duracion } = req.body;
+
+    if (!(id && nombre && nivelTecnico && fechaInicio && duracion)) return;
+
+    const put = await editarCurso(
+      id,
+      nombre,
+      nivelTecnico,
+      fechaInicio,
+      duracion
+    );
+    res.send(put);
+  } catch (error) {
+    console.log(res);
   }
 });
 

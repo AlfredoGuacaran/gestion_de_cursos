@@ -33,10 +33,38 @@ async function nuevoCurso(nombre, nivel, fecha, duracion) {
       values: [nombre, nivel, fecha, duracion],
     });
     client.release();
-    return res.rows;
+    return res.rows ? 'Curso registrado con exito' : 'Error';
   } catch (error) {
     throw error;
   }
 }
 
-module.exports = { getCursos, nuevoCurso };
+async function editarCurso(id, nombre, nivel, fecha, duracion) {
+  try {
+    const client = await pool.connect();
+    const res = await client.query({
+      text: 'UPDATE cursos SET nombre = $2, nivel = $3, fecha = $4, duracion = $5 WHERE id = $1',
+      values: [id, nombre, nivel, fecha, duracion],
+    });
+    client.release();
+    return res.rows ? 'Curso registrado con exito' : 'Error';
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function borrarCurso(curso) {
+  try {
+    const client = await pool.connect();
+    const res = await client.query({
+      text: 'DELETE FROM cursos WHERE id = $1',
+      values: [curso],
+    });
+    client.release();
+    return res.rows ? 'Curso eliminado con exito' : 'Error';
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = { getCursos, nuevoCurso, borrarCurso, editarCurso };
